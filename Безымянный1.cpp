@@ -1,3 +1,5 @@
+//input: squence ended with zero
+//output: Y - if it is alternated sign, or N - if not
 #include <iostream>
 using namespace std;
 int main () {
