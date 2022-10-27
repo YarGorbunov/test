@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta name="viewport" content="width=device-width initial-scale=1">
+    <title>Test</title>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <script src="assets/main.js" defer></script>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <main>
+        <div id="test" class="container text-center mt-5">
+            <p id="question-text">Greetings</p>
+            <form class="row justify-content-center align-items-center row-cols-1 gy-2">
+                <div class="col">
+                <input type="radio" name="answer" value="0" id="answer0" class="form-check-input">
+                <label for="answer0" class="form-check-label"></label>
+                </div>
+                <div class="col">
+                <input type="radio" name="answer" value="1" id="answer1" class="form-check-input">
+                <label for="answer1" class="form-check-label"></label>
+                </div>
+                <div class="col">
+                <input type="radio" name="answer" value="2" id="answer2" class="form-check-input">
+                <label for="answer2" class="form-check-label"></label>
+                </div>
+                <div class="col">
+                <input type="radio" name="answer" value="3" id="answer3" class="form-check-input">
+                <label for="answer3" class="form-check-label"></label>
+                </div>
+                <div class="col">
+                <input type="radio" name="answer" value="4" id="answer4" class="form-check-input">
+                <label for="answer4" class="form-check-label"></label>
+                </div>
+            </form>
+            <button type="button" class="btn btn-primary">Start test</button>
+            <h3 id="result"></h3>
+        </div>
+    </main>
+</body>
+</html>
