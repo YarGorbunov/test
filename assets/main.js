@@ -13,13 +13,16 @@ class Test{
     result;//шкала для оценки результата
     nextQuestionObject;//это поле содержит функцию nextQuestion как объект
     resultObject;//ссылка на элемент куда будем писать результат
-    constructor(questions,questionTextObject,radioObjects,answersObjects,buttonObject,resultObject){
+    prevButtonObject;//ссылка на кнопку предыдущего вопроса
+    finishTestObject;//это поле содержит функцию finishTest как объект
+    constructor(questions, questionTextObject, radioObjects, answersObjects, buttonObject, resultObject, prevButtonObject){
         this.questions=questions;
         this.questionTextObject=questionTextObject;
         this.radioObjects=radioObjects;
         this.answersObjects=answersObjects;
         this.buttonObject=buttonObject;
         this.resultObject=resultObject;
+        this.prevButtonObject=prevButtonObject;
         this.currentQuestion=0;
         this.result=0;
         this.initTest();
@@ -27,6 +30,7 @@ class Test{
 
     initTest() {
         this.buttonObject.addEventListener("click", bind(this, this.startTest), { once: true });//событие с настройкой once само отключится после одного срабатывания
+        this.prevButtonObject.addEventListener("click", bind(this, this.prevQuestion));
     }
 
     startTest(){
@@ -37,6 +41,7 @@ class Test{
             this.answersObjects[i].innerHTML=this.questions[0].answers[i].answerText;
         }
         this.nextQuestionObject=bind(this, this.nextQuestion);//сохраняем функцию NextQuestion как объект, чтобы потом можно было отвязать эту функцию от кнопки(ебоманый js)
+        this.finishTestObject=bind(this, this.finishTest);
         this.buttonObject.addEventListener("click", this.nextQuestionObject);//привязываем событи к кнопке
     }
 
@@ -45,16 +50,19 @@ class Test{
             if (this.radioObjects[i].checked===true) this.questions[this.currentQuestion].chosedAnswer=this.radioObjects[i].value;
         }
         if (this.questions[this.currentQuestion].chosedAnswer===-1) return 0; //если вариант не выбран выходим из функции
-        this.result+=this.questions[this.currentQuestion].answers[this.questions[this.currentQuestion].chosedAnswer].points;//прибавляем к результату нужный балл
         this.radioObjects[this.questions[this.currentQuestion].chosedAnswer].checked=false;//убираем выбор с радиокнопок
         this.currentQuestion++;
+        if (this.questions[this.currentQuestion].chosedAnswer!=-1) this.radioObjects[this.questions[this.currentQuestion].chosedAnswer].checked=true;//отображаем выбранный ранее вариант ответа
         this.questionTextObject.innerHTML=this.questions[this.currentQuestion].questionText;//меняем текст вопроса
         for (let i=0;i<this.answersObjects.length;i++){//меняем текст вариантов ответа
             this.answersObjects[i].innerHTML=this.questions[this.currentQuestion].answers[i].answerText;
         }
+        if (this.currentQuestion===1){//включаем отображение кнопки возврата со второго вопроса
+            this.prevButtonObject.style.display="block";
+        }
         if (this.currentQuestion===this.questions.length-1) {//эта часть выполняется если вопрос на который переключились только что является последним
             this.buttonObject.removeEventListener("click", this.nextQuestionObject); //отвязываем nextQuestion от кнопки
-            this.buttonObject.addEventListener("click", bind(this, this.finishTest));//привязываем finishTest взамен
+            this.buttonObject.addEventListener("click", this.finishTestObject);//привязываем finishTest взамен
             this.buttonObject.innerHTML="Finish";
         }
     }
@@ -64,12 +72,29 @@ class Test{
             if (this.radioObjects[i].checked===true) this.questions[this.currentQuestion].chosedAnswer=this.radioObjects[i].value;
         }
         if (this.questions[this.currentQuestion].chosedAnswer===-1) return 0; //если вариант не выбран выходим из функции
-        this.result+=this.questions[this.currentQuestion].answers[this.questions[this.currentQuestion].chosedAnswer].points;//прибавляем к результату нужный балл
         this.radioObjects.forEach(function(element){element.style.display="none";});//скрываем радиокнопки
         this.answersObjects.forEach(function(element){element.style.display="none";});//скрываем радиокнопки
         this.buttonObject.style.display="none";
         this.questionTextObject.style.display="none";
+        this.prevButtonObject.style.display="none";
+        for (let i=0;i<this.questions.length;i++){//подсчитываем результат
+            this.result+=this.questions[i].answers[this.questions[i].chosedAnswer].points;
+        }
         this.resultObject.innerHTML="Your result is "+this.result+" points";
+    }
+
+    prevQuestion(){
+        if (this.currentQuestion===this.questions.length-1) {
+            this.buttonObject.addEventListener("click", this.nextQuestionObject); //отвязываем nextQuestion от кнопки
+            this.buttonObject.removeEventListener("click", this.finishTestObject);//привязываем finishTest взамен
+            this.buttonObject.innerHTML="Next question";
+        }
+        this.currentQuestion--;
+        this.questionTextObject.innerHTML=this.questions[this.currentQuestion].questionText;//меняем текст вопроса
+        for (let i=0;i<this.answersObjects.length;i++){//меняем текст вариантов ответа
+            this.answersObjects[i].innerHTML=this.questions[this.currentQuestion].answers[i].answerText;
+        }
+        if (this.questions[this.currentQuestion].chosedAnswer!=-1) this.radioObjects[this.questions[this.currentQuestion].chosedAnswer].checked=true;//отображаем выбранный ранее вариант ответа
     }
 }
 class Question{
@@ -146,7 +171,8 @@ window.addEventListener("DOMContentLoaded", function(){
     let questionTextObject=this.document.getElementById("question-text");
     let radioObjects=document.querySelectorAll("input");
     let answersObjects=document.querySelectorAll("label");
-    let buttonObject=document.querySelector("button");
+    let buttonObject=document.querySelector("button#next-button");
     let resultObject=document.getElementById("result");
-    let test1=new Test(questions,questionTextObject,radioObjects,answersObjects,buttonObject,resultObject);
+    let prevButtonObject=document.getElementById("prev-button");
+    let test1=new Test(questions,questionTextObject,radioObjects,answersObjects,buttonObject,resultObject, prevButtonObject);
 });

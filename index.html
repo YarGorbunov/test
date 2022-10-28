@@ -10,7 +10,11 @@
 </head>
 <body>
     <main>
-        <div id="test" class="container text-center mt-5">
+        <div id="test" class="row text-center mt-5">
+            <div class="col-1">
+                <button type="button" class="btn btn-primary" id="prev-button">&lt;</button>
+            </div>
+            <div class="col-11">
             <p id="question-text">Greetings</p>
             <form class="row justify-content-center align-items-center row-cols-1 gy-2">
                 <div class="col">
@@ -34,8 +38,9 @@
                 <label for="answer4" class="form-check-label"></label>
                 </div>
             </form>
-            <button type="button" class="btn btn-primary">Start test</button>
+            <button type="button" class="btn btn-primary" id="next-button">Start test</button>
             <h3 id="result"></h3>
+            </div>
         </div>
     </main>
 </body>

@@ -1,3 +1,7 @@
 form input {
     display: none; 
 }
+
+#prev-button{
+    display: none;;
+}
