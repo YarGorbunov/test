@@ -149,10 +149,6 @@ class Test{
             this.buttonObject.innerHTML="Finish";
         }
     }
-
-    getCurrentQuestion(){
-        return this.currentQuestion;
-    }
 }
 class Question{
     questionText;//текст вопроса
