@@ -15,7 +15,9 @@ class Test{
     resultObject;//ссылка на элемент куда будем писать результат
     prevButtonObject;//ссылка на кнопку предыдущего вопроса
     finishTestObject;//это поле содержит функцию finishTest как объект
-    constructor(questions, questionTextObject, radioObjects, answersObjects, buttonObject, resultObject, prevButtonObject){
+    pagerButtonsObjects;//массив ссылок на кнопки пейджера на странице
+    pagerObject;//сам пейджер на странице
+    constructor(questions, questionTextObject, radioObjects, answersObjects, buttonObject, resultObject, prevButtonObject, pagerObject, firstPagerButton){
         this.questions=questions;
         this.questionTextObject=questionTextObject;
         this.radioObjects=radioObjects;
@@ -23,9 +25,14 @@ class Test{
         this.buttonObject=buttonObject;
         this.resultObject=resultObject;
         this.prevButtonObject=prevButtonObject;
+        this.pagerButtonsObjects=new Array(this.questions.length);
+        this.pagerButtonsObjects[0]=firstPagerButton;
+        this.pagerObject=pagerObject;
         this.currentQuestion=0;
         this.result=0;
         this.initTest();
+        this.createPagerButtons();
+
     }
 
     initTest() {
@@ -43,6 +50,9 @@ class Test{
         this.nextQuestionObject=bind(this, this.nextQuestion);//сохраняем функцию NextQuestion как объект, чтобы потом можно было отвязать эту функцию от кнопки(ебоманый js)
         this.finishTestObject=bind(this, this.finishTest);
         this.buttonObject.addEventListener("click", this.nextQuestionObject);//привязываем событи к кнопке
+        this.pagerObject.style.display="flex";//включаем отображение пейджера
+        this.pagerButtonsObjects[0].disabled=false;//включаем первую кнопку
+        this.pagerButtonsObjects[0].addEventListener("click", bind(this, function(){ this.changeQuestion(0);} ) );//привязываем функцию к кнопке
     }
 
     nextQuestion(){//у меня чувство что я не пойму это утром. функция считывает выбранный ответ, записывает его, и отображает следующий
@@ -65,6 +75,11 @@ class Test{
             this.buttonObject.addEventListener("click", this.finishTestObject);//привязываем finishTest взамен
             this.buttonObject.innerHTML="Finish";
         }
+        if (this.pagerButtonsObjects[this.currentQuestion].disabled===true){//если достигли нового вопроса(такого которого еще не было), включаем кнопку пейджера и задаем нужное событие при нажатии
+            this.pagerButtonsObjects[this.currentQuestion].disabled=false;
+            let currquest=this.currentQuestion;//записываем значение текущего вопроса, чтобы потом предать его ПО ЗНАЧЕНИЮ
+            this.pagerButtonsObjects[this.currentQuestion].addEventListener("click", bind(this, function(){ this.changeQuestion(currquest);}));//привязываем событие на соответствующую кнопку пейджера
+        }
     }
 
     finishTest(){//подсчитывает последний вопрос, скрывает интерфейс теста и выводит результат
@@ -77,6 +92,7 @@ class Test{
         this.buttonObject.style.display="none";
         this.questionTextObject.style.display="none";
         this.prevButtonObject.style.display="none";
+        this.pagerObject.style.display="none";
         for (let i=0;i<this.questions.length;i++){//подсчитываем результат
             this.result+=this.questions[i].answers[this.questions[i].chosedAnswer].points;
         }
@@ -85,8 +101,8 @@ class Test{
 
     prevQuestion(){
         if (this.currentQuestion===this.questions.length-1) {
-            this.buttonObject.addEventListener("click", this.nextQuestionObject); //отвязываем nextQuestion от кнопки
-            this.buttonObject.removeEventListener("click", this.finishTestObject);//привязываем finishTest взамен
+            this.buttonObject.addEventListener("click", this.nextQuestionObject); //привязываем nextQuestion от кнопки
+            this.buttonObject.removeEventListener("click", this.finishTestObject);//отвязываем finishTest взамен
             this.buttonObject.innerHTML="Next question";
         }
         this.currentQuestion--;
@@ -95,6 +111,47 @@ class Test{
             this.answersObjects[i].innerHTML=this.questions[this.currentQuestion].answers[i].answerText;
         }
         if (this.questions[this.currentQuestion].chosedAnswer!=-1) this.radioObjects[this.questions[this.currentQuestion].chosedAnswer].checked=true;//отображаем выбранный ранее вариант ответа
+    }
+
+    createPagerButtons(){//создает нужное кол-во кнопок пейджера по образу и подобию первой, также полностью заполняет массив pagerButtons Objects
+        let firstBtn=this.pagerObject.innerHTML;//в эту переменную сохранили первую кнопку вместе с div,в котором она лежит
+        for (let i=1;i<this.questions.length;i++){
+            this.pagerObject.innerHTML+=firstBtn;//клонируем первую кнопку
+        }
+        let buttons=this.pagerObject.querySelectorAll(".pager-button");//взяли в массив все кнопки в пейджере
+        buttons.forEach(function (element, index) { element.id=element.id.slice(0,element.id.length-1)+(index+1); element.innerHTML=index+1; } );//делаем каждой кнопке нужный id
+        for (let i=0;i<buttons.length;i++){//заполняем массив pagerButtonsObjects
+            this.pagerButtonsObjects[i]=buttons[i];
+        }
+    }
+
+    changeQuestion(questionNumber){//считывает ответ на текущий вопрос, отображает вопрос questionNumber, используется пейджером
+        if(this.currentQuestion === questionNumber) return 0;
+        if (questionNumber===0) this.prevButtonObject.style.display="none";//если переключаемся на первый вопрос выключаем кнопку
+        else this.prevButtonObject.style.display="block";
+        for(let i=0;i<this.radioObjects.length;i++){ //ищем выбранный вариант
+            if (this.radioObjects[i].checked===true) this.questions[this.currentQuestion].chosedAnswer=this.radioObjects[i].value;
+        }
+        if (this.currentQuestion===this.questions.length-1) {
+            this.buttonObject.addEventListener("click", this.nextQuestionObject); //привязываем nextQuestion от кнопки
+            this.buttonObject.removeEventListener("click", this.finishTestObject);//отвязываем finishTest взамен
+            this.buttonObject.innerHTML="Next question";
+        }
+        this.currentQuestion=questionNumber;
+        this.questionTextObject.innerHTML=this.questions[this.currentQuestion].questionText;//меняем текст вопроса
+        for (let i=0;i<this.answersObjects.length;i++){//меняем текст вариантов ответа
+            this.answersObjects[i].innerHTML=this.questions[this.currentQuestion].answers[i].answerText;
+        }
+        if (this.questions[this.currentQuestion].chosedAnswer!=-1) this.radioObjects[this.questions[this.currentQuestion].chosedAnswer].checked=true;//отображаем выбранный ранее вариант ответа
+        if (this.currentQuestion===this.questions.length-1) {
+            this.buttonObject.removeEventListener("click", this.nextQuestionObject); //отвязываем nextQuestion от кнопки
+            this.buttonObject.addEventListener("click", this.finishTestObject);//привязываем finishTest взамен
+            this.buttonObject.innerHTML="Finish";
+        }
+    }
+
+    getCurrentQuestion(){
+        return this.currentQuestion;
     }
 }
 class Question{
@@ -158,6 +215,56 @@ let questionsList = [
                 "points": 10
             }
         ]
+    },
+    {
+        "text":"QUESTION TEXT3",
+        "answers": [
+            {
+                "answerText": "ANSWER TEXT6",
+                "points": 6
+            },
+            {
+                "answerText": "ANSWER TEXT7",
+                "points": 7
+            },
+            {
+                "answerText": "ANSWER TEXT8",
+                "points": 8
+            },
+            {
+                "answerText": "ANSWER TEXT9",
+                "points": 9
+            },
+            {
+                "answerText": "ANSWER TEXT10",
+                "points": 10
+            }
+        ]
+    },
+    {
+        "text":"QUESTION TEXT4",
+        "answers": [
+            {
+                "answerText": "ANSWER TEXT6",
+                "points": 6
+            },
+            {
+                "answerText": "ANSWER TEXT7",
+                "points": 7
+            },
+            {
+                "answerText": "ANSWER TEXT8",
+                "points": 8
+            },
+            {
+                "answerText": "ANSWER TEXT9",
+                "points": 9
+            },
+            {
+                "answerText": "ANSWER TEXT10",
+                "points": 10
+            }
+        ]
     }
 ];
 
@@ -174,5 +281,7 @@ window.addEventListener("DOMContentLoaded", function(){
     let buttonObject=document.querySelector("button#next-button");
     let resultObject=document.getElementById("result");
     let prevButtonObject=document.getElementById("prev-button");
-    let test1=new Test(questions,questionTextObject,radioObjects,answersObjects,buttonObject,resultObject, prevButtonObject);
+    let pagerObject=document.getElementById("test-pager");
+    let firstPagerButton=document.querySelector(".pager-button");
+    let test1=new Test(questions,questionTextObject,radioObjects,answersObjects,buttonObject,resultObject, prevButtonObject, pagerObject, firstPagerButton);
 });

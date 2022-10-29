@@ -5,3 +5,7 @@ form input {
 #prev-button{
     display: none;;
 }
+
+#test-pager{
+    display: none;
+}
