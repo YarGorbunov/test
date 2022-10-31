@@ -53,6 +53,7 @@ class Test{
         this.pagerObject.style.display="flex";//включаем отображение пейджера
         this.pagerButtonsObjects[0].disabled=false;//включаем первую кнопку
         this.pagerButtonsObjects[0].addEventListener("click", bind(this, function(){ this.changeQuestion(0);} ) );//привязываем функцию к кнопке
+        this.pagerButtonsObjects[0].classList.add("active");
     }
 
     nextQuestion(){//у меня чувство что я не пойму это утром. функция считывает выбранный ответ, записывает его, и отображает следующий
@@ -60,8 +61,10 @@ class Test{
             if (this.radioObjects[i].checked===true) this.questions[this.currentQuestion].chosedAnswer=this.radioObjects[i].value;
         }
         if (this.questions[this.currentQuestion].chosedAnswer===-1) return 0; //если вариант не выбран выходим из функции
+        this.pagerButtonsObjects[this.currentQuestion].classList.remove("active");
         this.radioObjects[this.questions[this.currentQuestion].chosedAnswer].checked=false;//убираем выбор с радиокнопок
         this.currentQuestion++;
+        this.pagerButtonsObjects[this.currentQuestion].classList.add("active");
         if (this.questions[this.currentQuestion].chosedAnswer!=-1) this.radioObjects[this.questions[this.currentQuestion].chosedAnswer].checked=true;//отображаем выбранный ранее вариант ответа
         this.questionTextObject.innerHTML=this.questions[this.currentQuestion].questionText;//меняем текст вопроса
         for (let i=0;i<this.answersObjects.length;i++){//меняем текст вариантов ответа
@@ -105,7 +108,9 @@ class Test{
             this.buttonObject.removeEventListener("click", this.finishTestObject);//отвязываем finishTest взамен
             this.buttonObject.innerHTML="Next question";
         }
+        this.pagerButtonsObjects[this.currentQuestion].classList.remove("active");
         this.currentQuestion--;
+        this.pagerButtonsObjects[this.currentQuestion].classList.add("active");
         this.questionTextObject.innerHTML=this.questions[this.currentQuestion].questionText;//меняем текст вопроса
         for (let i=0;i<this.answersObjects.length;i++){//меняем текст вариантов ответа
             this.answersObjects[i].innerHTML=this.questions[this.currentQuestion].answers[i].answerText;
@@ -137,7 +142,9 @@ class Test{
             this.buttonObject.removeEventListener("click", this.finishTestObject);//отвязываем finishTest взамен
             this.buttonObject.innerHTML="Next question";
         }
+        this.pagerButtonsObjects[this.currentQuestion].classList.remove("active");
         this.currentQuestion=questionNumber;
+        this.pagerButtonsObjects[this.currentQuestion].classList.add("active");
         this.questionTextObject.innerHTML=this.questions[this.currentQuestion].questionText;//меняем текст вопроса
         for (let i=0;i<this.answersObjects.length;i++){//меняем текст вариантов ответа
             this.answersObjects[i].innerHTML=this.questions[this.currentQuestion].answers[i].answerText;

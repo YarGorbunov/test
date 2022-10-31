@@ -9,3 +9,8 @@ form input {
 #test-pager{
     display: none;
 }
+
+.btn.active{
+    color: #0d6efd;
+    background-color: white;
+}
