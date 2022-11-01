@@ -142,6 +142,7 @@ class Test{
             this.buttonObject.removeEventListener("click", this.finishTestObject);//отвязываем finishTest взамен
             this.buttonObject.innerHTML="Next question";
         }
+        if (this.questions[this.currentQuestion].chosedAnswer!=-1) this.radioObjects[this.questions[this.currentQuestion].chosedAnswer].checked=false;//убираем выбор с радиокнопок
         this.pagerButtonsObjects[this.currentQuestion].classList.remove("active");
         this.currentQuestion=questionNumber;
         this.pagerButtonsObjects[this.currentQuestion].classList.add("active");
